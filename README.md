@@ -52,7 +52,7 @@ sudo -u postgres psql
 CREATE DATABASE tourist_rental_db;
 
 -- Create the database user (replace 'postgres' with your desired password)
-CREATE USER postgres WITH PASSWORD 'postgres';
+CREATE USER travel_user WITH PASSWORD 'postgres';
 
 -- Grant privileges to the user
 ALTER ROLE postgres SET client_encoding TO 'utf8';
@@ -78,7 +78,7 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 
 # PostgreSQL Database Configuration
 DB_NAME=tourist_rental_db
-DB_USER=postgres
+DB_USER=travel_user
 DB_PASSWORD=postgres
 DB_HOST=localhost
 DB_PORT=5432
@@ -218,3 +218,41 @@ curl -X GET http://127.0.0.1:8000/accounts/api/profile/ \
   -H "Authorization: Bearer your_access_token_here" \
   -H "Content-Type: application/json"
 ```
+### PostgreSQL Setup
+
+After creating the database and application user, grant the required permissions before running Django migrations.
+
+Example:
+
+```sql
+CREATE DATABASE tourist_rental_db;
+
+CREATE USER travel_user WITH PASSWORD 'your_password';
+
+GRANT ALL ON SCHEMA public TO travel_user;
+
+GRANT ALL PRIVILEGES ON DATABASE tourist_rental_db TO travel_user;
+
+ALTER DATABASE tourist_rental_db OWNER TO travel_user;
+```
+
+Why is this necessary?
+
+Django migrations create database tables. If the application user does not have permissions on the `public` schema, migrations will fail with:
+
+```
+permission denied for schema public
+```
+
+Run these commands before executing:
+
+```bash
+python manage.py migrate
+```
+- Setup Order
+1. Install PostgreSQL
+2. Create database
+3. Create application user
+4. Grant schema/database permissions
+5. Configure .env
+6. Run migrations
