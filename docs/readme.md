@@ -159,35 +159,83 @@ Database
 Using `CreateAPIView` reduces boilerplate code because Django REST Framework already provides the common logic required for creating new objects.
 
 ---
+## JWT Authentication (Login System)
 
-## Summary
+### Overview
 
-At this stage, the authentication system consists of:
+After implementing user registration, the next step in the authentication system is **JWT-based login**. This allows users to securely log in and receive tokens that are used for accessing protected API endpoints.
 
-1. Custom User Model
-2. Custom User Manager
-3. PostgreSQL Database Integration
-4. Register Serializer
-5. Register API View
+JWT (JSON Web Token) authentication is stateless, meaning the server does not store session data. Instead, the client stores the token and sends it with each request.
 
-Current Registration Flow:
+---
+
+### Login Flow
+
+The login process works as follows:
 
 ```text
-POST /accounts/register/
-         ↓
-RegisterView
-         ↓
-RegisterSerializer
-         ↓
-Validation
-         ↓
-UserManager.create_user()
-         ↓
-Password Hashing
-         ↓
-Database Save
-         ↓
-Response Returned
+User enters email and password
+        ↓
+Frontend sends POST request
+        ↓
+Django verifies credentials
+        ↓
+If valid → JWT tokens generated
+        ↓
+Access + Refresh tokens returned
+        ↓
+Frontend stores tokens
+        ↓
+Tokens used for protected API requests
 ```
 
-This establishes the foundation for future authentication features such as login, JWT authentication, profile management, password reset, and role-based permissions.
+---
+
+### API Endpoint
+
+#### Login Endpoint
+
+```
+POST /api/accounts/login/
+```
+
+---
+
+### Request Format
+
+```json
+{
+    "email": "user@example.com",
+    "password": "userpassword"
+}
+```
+
+## Token Types
+
+### 1. Access Token
+
+* Short-lived
+* Used for authentication in API requests
+* Sent with every request
+
+### 2. Refresh Token
+
+* Long-lived
+* Used to generate new access tokens
+* Sent only when access token expires
+
+---
+
+### Final Flow
+
+```text
+Login Request
+     ↓
+Validate Credentials
+     ↓
+Generate JWT Tokens
+     ↓
+Return to Client
+     ↓
+Client uses token for protected APIs
+```
