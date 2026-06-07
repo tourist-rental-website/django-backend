@@ -35,3 +35,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         # 2. Plain create() would store the password in plaintext (security risk)
         # **validated_data unpacks the cleaned fields as keyword arguments
         return User.objects.create_user(**validated_data)
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "role",
+        ]
+        read_only_fields = ["id", "email", "role"] # id and email cannot be updated by the user
