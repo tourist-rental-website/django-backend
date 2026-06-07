@@ -159,7 +159,7 @@ Database
 Using `CreateAPIView` reduces boilerplate code because Django REST Framework already provides the common logic required for creating new objects.
 
 ---
-## JWT Authentication (Login System)
+## 6. JWT Authentication (Login System)
 
 ### Overview
 
@@ -239,3 +239,58 @@ Return to Client
      ↓
 Client uses token for protected APIs
 ```
+## 7. User Profile
+
+### `/accounts/me/` API
+
+This endpoint is used to get and update the currently logged-in user’s profile using JWT authentication.
+
+It helps the frontend identify who is logged in and allows users to update their own basic information.
+
+### Methods
+
+### GET – Get Current User
+
+Returns the details of the authenticated user.
+
+#### Response
+
+```json
+{
+    "id": 1,
+    "email": "user@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "9800000000",
+    "role": "traveler"
+}
+```
+
+---
+
+### PATCH – Update User Profile
+
+Allows the logged-in user to update their profile partially.
+
+#### Request
+
+```json
+{
+    "first_name": "John",
+    "phone": "9812345678"
+}
+```
+
+#### Response
+
+```json
+{
+    "id": 1,
+    "email": "user@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "9812345678",
+    "role": "traveler"
+}
+```
+
