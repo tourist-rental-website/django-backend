@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import GuideProfileCreateView
+from .views import GuideProfileCreateView, GuideProfileListView
 
 urlpatterns = [
-    path("guides/", GuideProfileCreateView.as_view(), name="guide-create"),
+    path("guides/create/", GuideProfileCreateView.as_view(), name="guide-create"),
+    path("guides/", GuideProfileListView.as_view(), name="guide-list"),
 ]
