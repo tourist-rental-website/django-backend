@@ -1,4 +1,4 @@
-# Accounts App Development Journey
+# Backend App Development Journey
 
 ## 1. Creating a Custom User Model
 
@@ -294,3 +294,61 @@ Allows the logged-in user to update their profile partially.
 }
 ```
 
+## 8. Guide Profile
+
+After completing user authentication and profile management, the next step was to create a dedicated profile model for guides.
+
+The purpose of the `GuideProfile` model is to store guide-specific information separately from the User model. This keeps the User model clean and allows different user roles (Traveler, Guide, Hotel) to have their own specialized data.
+
+### Model Design
+
+A One-to-One relationship was created between `User` and `GuideProfile`.
+
+```text
+User
+  │
+  └── GuideProfile
+```
+
+This ensures that:
+
+* One user can have only one guide profile.
+* Each guide profile belongs to exactly one user.
+
+
+The `user` field was marked as read-only because it is assigned automatically from the authenticated user.
+
+### Create Guide Profile
+
+Authenticated users can create a guide profile.
+
+#### View
+
+```python
+class GuideProfileCreateView(generics.CreateAPIView):
+    serializer_class = GuideProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+```
+
+### Why use `perform_create()`?
+
+Instead of allowing clients to send a user ID, the authenticated user is automatically attached to the GuideProfile.
+
+```python
+serializer.save(user=self.request.user)
+```
+
+This ensures that users can only create guide profiles for themselves.
+
+
+### List Guide Profiles
+
+A `ListAPIView` was created to return all available guide profiles.
+
+This endpoint will later be used by the frontend to display guides that travelers can browse and hire.
+
+```
+```
