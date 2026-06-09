@@ -350,5 +350,4 @@ A `ListAPIView` was created to return all available guide profiles.
 
 This endpoint will later be used by the frontend to display guides that travelers can browse and hire.
 
-```
-```
+* In The same way create HotelProfile also
