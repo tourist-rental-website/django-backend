@@ -1,7 +1,5 @@
-from importlib.resources import Package
-
 from django.contrib import admin
-from .models import GuideProfile, HotelProfile, Room
+from .models import GuideProfile, HotelProfile, Package, Room
 # Register your models here.
 admin.site.register(GuideProfile)
 admin.site.register(HotelProfile)

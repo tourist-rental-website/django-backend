@@ -15,7 +15,7 @@ class HotelProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
 
-class RoomSerializer(serializers.ModelSerilizer):
+class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model=Room
         fields='__all__'
