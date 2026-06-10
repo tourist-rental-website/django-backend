@@ -1,4 +1,4 @@
-from .models import GuideProfile, HotelProfile
+from .models import GuideProfile, HotelProfile, Room, Package
 from rest_framework import serializers
 
 class GuideProfileSerializer(serializers.ModelSerializer):
@@ -13,3 +13,16 @@ class HotelProfileSerializer(serializers.ModelSerializer):
         model = HotelProfile
         fields = '__all__'
         read_only_fields = ['user']
+
+
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = '__all__'
+        read_only_fields = ['hotel']
+
+class PackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = '__all__'
+        read_only_fields = ['guide']
