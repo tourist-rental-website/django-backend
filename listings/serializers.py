@@ -1,4 +1,4 @@
-from .models import GuideProfile, HotelProfile
+from .models import GuideProfile, HotelProfile, Package, Room
 from rest_framework import serializers
 
 class GuideProfileSerializer(serializers.ModelSerializer):
@@ -13,3 +13,17 @@ class HotelProfileSerializer(serializers.ModelSerializer):
         model = HotelProfile
         fields = '__all__'
         read_only_fields = ['user']
+
+
+class RoomSerializer(serializers.ModelSerilizer):
+    class Meta:
+        model=Room
+        fields='__all__'
+        read_only_fields=['hotel'] # Hotel is set automatically via perform_create(), not sent by client
+
+
+class PackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = '__all__'
+        read_only_fields = ['guide'] # Guide is set automatically via perform_create(), not sent by client
