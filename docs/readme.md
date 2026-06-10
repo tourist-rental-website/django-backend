@@ -351,3 +351,239 @@ A `ListAPIView` was created to return all available guide profiles.
 This endpoint will later be used by the frontend to display guides that travelers can browse and hire.
 
 * In The same way create HotelProfile also
+
+
+## 9. Hotel Profile
+
+After implementing the GuideProfile system, a similar profile model was created for hotel providers.
+
+The purpose of the `HotelProfile` model is to store hotel-specific information separately from the User model. This allows hotel users to maintain information related to their hotels without cluttering the core User model.
+
+### Model Design
+
+A One-to-One relationship was created between `User` and `HotelProfile`.
+
+```text
+User
+  │
+  └── HotelProfile
+```
+
+This ensures that:
+
+* One hotel user can have only one hotel profile.
+* Each hotel profile belongs to exactly one user.
+
+### Create Hotel Profile
+
+Authenticated hotel users can create a hotel profile.
+
+#### View
+
+```python
+class HotelProfileCreateView(generics.CreateAPIView):
+    serializer_class = HotelProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+```
+
+The authenticated user is automatically attached to the profile.
+
+### List Hotel Profiles
+
+A `ListAPIView` was created to return all available hotel profiles.
+
+This endpoint will later be used by travelers to browse hotels available on the platform.
+
+---
+
+## 10. Room Management
+
+After creating hotel profiles, a Room model was added to allow hotels to manage individual rooms.
+
+### Model Design
+
+A many-to-one relationship was created between `HotelProfile` and `Room`.
+
+```text
+HotelProfile
+      │
+      ├── Room
+      ├── Room
+      └── Room
+```
+
+This ensures that:
+
+* One hotel can have many rooms.
+* Each room belongs to exactly one hotel.
+
+### Room Fields
+
+* room_type
+* price_per_night
+* capacity
+* is_available
+* created_at
+
+### Create Room
+
+Only authenticated users with the hotel role can create rooms.
+
+#### Flow
+
+```text
+Authenticated Hotel User
+          ↓
+Hotel Profile
+          ↓
+Room Creation
+          ↓
+Database
+```
+
+The hotel profile is automatically attached during creation.
+
+```python
+serializer.save(hotel=hotel_profile)
+```
+
+This prevents users from creating rooms for other hotels.
+
+### List Rooms
+
+A public endpoint was created to allow travelers to browse all available rooms.
+
+---
+
+## 11. Tour Package Management
+
+A Package model was created to allow guides to offer tourism packages to travelers.
+
+### Model Design
+
+A many-to-one relationship was created between `GuideProfile` and `Package`.
+
+```text
+GuideProfile
+      │
+      ├── Package
+      ├── Package
+      └── Package
+```
+
+This ensures that:
+
+* One guide can create multiple tour packages.
+* Each package belongs to exactly one guide.
+
+### Package Fields
+
+* title
+* description
+* duration_days
+* price
+* location
+* created_at
+
+### Create Package
+
+Only authenticated users with the guide role can create packages.
+
+#### Flow
+
+```text
+Authenticated Guide User
+          ↓
+Guide Profile
+          ↓
+Package Creation
+          ↓
+Database
+```
+
+The guide profile is automatically attached during creation.
+
+```python
+serializer.save(guide=guide_profile)
+```
+
+This prevents users from creating packages for other guides.
+
+### List Packages
+
+A public endpoint was created to allow travelers to browse available tour packages.
+
+---
+
+## 12. Role-Based Access Control
+
+The application uses role-based access control to ensure that users can only perform actions relevant to their role.
+
+### Traveler
+
+Can:
+
+* Register and login
+* View guide profiles
+* View hotel profiles
+* View rooms
+* View tour packages
+
+### Guide
+
+Can:
+
+* Create and manage a guide profile
+* Create tour packages
+* View public listings
+
+### Hotel
+
+Can:
+
+* Create and manage a hotel profile
+* Create rooms
+* View public listings
+
+Role validation is performed inside the view layer before creating role-specific resources.
+
+---
+
+## 13. Admin Panel Configuration
+
+All major models are registered in Django Admin for easier management and testing.
+
+Registered models:
+
+* User
+* GuideProfile
+* HotelProfile
+* Room
+* Package
+
+The admin panel allows administrators to:
+
+* View records
+* Create records
+* Edit records
+* Delete records
+
+without directly interacting with the database.
+
+---
+
+## 14. Current Database Relationships
+
+```text
+User
+ ├── GuideProfile (One-to-One)
+ │      └── Package (One-to-Many)
+ │
+ └── HotelProfile (One-to-One)
+        └── Room (One-to-Many)
+```
+
+This structure separates authentication data from business-specific data while maintaining clear ownership relationships throughout the application.
