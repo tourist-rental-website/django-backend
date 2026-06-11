@@ -13,6 +13,15 @@ class GuideProfileCreateView(generics.CreateAPIView):
         if self.request.user.role != 'guide': # Check if the authenticated user has the role of 'guide'
             raise ValidationError("Only guide users can create a guide profile.")
         serializer.save(user=self.request.user)
+        #local import to avoid circular import issues since notifications also imports accounts and accounts imports notifications
+        from notifications.services import create_notification
+
+        create_notification(
+            recipient=self.request.user,
+            notification_type="System",
+            title="Guide Profile Created",
+            message="Your guide profile has been successfully created."
+        )
 
 class GuideProfileListView(generics.ListAPIView):
     queryset = GuideProfile.objects.all()
@@ -27,6 +36,13 @@ class HotelProfileCreateView(generics.CreateAPIView):
         if self.request.user.role != 'hotel': # Check if the authenticated user has the role of 'hotel'
             raise ValidationError("Only hotel users can create a hotel profile.")
         serializer.save(user=self.request.user)
+        from notifications.services import create_notification
+        create_notification(
+            recipient=self.request.user,
+            notification_type="System",
+            title="Hotel Profile Created",
+            message="Your hotel profile has been successfully created."
+        )
 
 class HotelProfileListView(generics.ListAPIView):
     queryset = HotelProfile.objects.all()
@@ -42,6 +58,13 @@ class RoomCreateView(generics.CreateAPIView):
             raise ValidationError("Only hotel users can create rooms.")
         hotel_profile = self.request.user.hotel_profile
         serializer.save(hotel=hotel_profile)
+        from notifications.services import create_notification
+        create_notification(
+            recipient=self.request.user,
+            notification_type="System",
+            title="Room Created",
+            message=f"Your room '{serializer.validated_data['name']}' has been successfully created."
+        )
 
 class RoomListView(generics.ListAPIView):
     get_queryset = Room.objects.all()
@@ -57,6 +80,13 @@ class PackageCreateView(generics.CreateAPIView):
             raise ValidationError("Only guide users can create packages.")
         guide_profile = self.request.user.guide_profile
         serializer.save(guide=guide_profile)
+        from notifications.services import create_notification
+        create_notification(
+            recipient=self.request.user,
+            notification_type="System",
+            title="Package Created",
+            message=f"Your package '{serializer.validated_data['name']}' has been successfully created."
+        )
 
 class PackageListView(generics.ListAPIView):
     queryset = Package.objects.all()
