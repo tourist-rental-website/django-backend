@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     # Local apps
     'accounts',
     'listings',
+    'booking',
+    'reviews',
+    'notifications',
+    'chat',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
