@@ -7,4 +7,5 @@ urlpatterns = [
    path('listings/', include('listings.urls')),
    path('booking/', include('booking.urls')),
    
+   path('notifications/', include('notifications.urls')),
 ]

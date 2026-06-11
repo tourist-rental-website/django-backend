@@ -51,6 +51,10 @@ INSTALLED_APPS = [
     'reviews',
     'notifications',
     'chat',
+    'notifications',
+
+    #django extenation
+    'django_extensions',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
