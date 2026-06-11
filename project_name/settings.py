@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     # Local apps
     'accounts',
     'listings',
+    'notifications',
+
+    #django extenation
+    'django_extensions',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
