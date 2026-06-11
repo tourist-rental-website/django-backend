@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from rest_framework.response import Response
 from jsonschema import ValidationError
 from .models import RoomBooking, PackageBooking
 from .serializers import RoomBookingSerializer, PackageBookingSerializer
@@ -21,3 +22,52 @@ class PackageBookingCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(traveler=self.request.user)
+
+class MyBookingsView(generics.ListAPIView):
+    serializer_class = RoomBookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return RoomBooking.objects.filter(traveler=self.request.user)
+    
+class MyPackageBookingsView(generics.ListAPIView):
+    serializer_class = PackageBookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return PackageBooking.objects.filter(traveler=self.request.user)
+
+
+class CancelRoomBookingView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        booking = get_object_or_404(
+            RoomBooking,
+            id=self.kwargs["pk"],
+            traveler=request.user
+        )
+
+        booking.status = "cancelled"
+        booking.save()
+
+        return Response({
+            "message": "Booking cancelled successfully."
+        })
+    
+class CancelPackageBookingView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        booking = get_object_or_404(
+            PackageBooking,
+            id=self.kwargs["pk"],
+            traveler=request.user
+        )
+
+        booking.status = "cancelled"
+        booking.save()
+
+        return Response({
+            "message": "Booking cancelled successfully."
+        })
