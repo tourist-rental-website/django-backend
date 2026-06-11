@@ -11,13 +11,20 @@ class Notification(models.Model):
         related_name="notifications"
     )
 
+    resource_id = models.PositiveIntegerField(
+        blank=True, 
+        null=True
+    ) 
+
     # Notification type to allow client-side filtering and icon/styling decisions
     TYPE_CHOICES = (
-        ("booking", "Booking"),          # e.g. "Your booking has been confirmed"
-        ("review", "Review"),            # e.g. "You received a new review"
-        ("message", "Message"),          # e.g. "New message from John"
-        ("system", "System"),            # e.g. "Welcome to UrbanFinder!"
-        ("payment", "Payment"),          # e.g. "Payment received"
+        ("booking_created", "Booking Created"),
+        ("booking_approved", "Booking Approved"),
+        ("booking_rejected", "Booking Rejected"),
+        ("new_message", "New Message"),
+        ("review_received", "Review Received"),
+        ("payment_success", "Payment Success"),
+        ("system", "System"),
     )
     notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default="system")
 

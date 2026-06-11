@@ -23,24 +23,25 @@ class UnreadNotificationListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Notification.objects.filter(recipient=self.request.user, is_read=False)
+        return Notification.objects.filter(
+            recipient=self.request.user,
+            is_read=False
+        )
 
 
-class MarkNotificationReadView(APIView):
+class MarkNotificationReadView(generics.UpdateAPIView):
     # Marks a single notification as read
-    # Uses APIView (same as MeView in accounts) for custom logic beyond simple CRUD
+    # Uses UpdateAPIView for standard update logic with minimal custom code
+    serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request, pk):
-        try:
-            notification = Notification.objects.get(pk=pk, recipient=request.user)
-        except Notification.DoesNotExist:
-            return Response({"error": "Notification not found."}, status=404)
+    def get_queryset(self):
+        # Only allow access to notifications belonging to the authenticated user
+        return Notification.objects.filter(recipient=self.request.user)
 
-        notification.is_read = True
-        notification.save()
-        serializer = NotificationSerializer(notification)
-        return Response(serializer.data)
+    def perform_update(self, serializer):
+        # Forces the notification to be marked as read regardless of request data
+        serializer.save(is_read=True)
 
 
 class MarkAllNotificationsReadView(APIView):
@@ -54,4 +55,30 @@ class MarkAllNotificationsReadView(APIView):
             is_read=False
         ).update(is_read=True)
 
-        return Response({"message": f"{updated_count} notifications marked as read."})
+        return Response({
+            "message": f"{updated_count} notifications marked as read."
+        })
+
+
+class NotificationDeleteView(generics.DestroyAPIView):
+    # Deletes a single notification — only if it belongs to the authenticated user
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user)
+
+
+class UnreadNotificationCountView(APIView):
+    # Returns the count of unread notifications for the authenticated user
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        unread_count = Notification.objects.filter(
+            recipient=request.user,
+            is_read=False
+        ).count()
+
+        return Response({
+            "unread_count": unread_count
+        })
