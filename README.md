@@ -224,7 +224,7 @@ After creating the database and application user, grant the required permissions
 
 Example:
 
-```sql
+```SQL
 CREATE DATABASE tourist_rental_db;
 
 CREATE USER travel_user WITH PASSWORD 'your_password';

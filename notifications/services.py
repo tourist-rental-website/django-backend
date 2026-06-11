@@ -19,4 +19,5 @@ def create_notification(recipient, notification_type, title, message):
         notification_type=notification_type,
         title=title,
         message=message,
+        related_object_id=related_object_id,
     )
