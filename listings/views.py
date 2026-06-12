@@ -1,4 +1,4 @@
-from jsonschema import ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import GuideProfile, HotelProfile, Room, Package
@@ -18,9 +18,10 @@ class GuideProfileCreateView(generics.CreateAPIView):
 
         create_notification(
             recipient=self.request.user,
-            notification_type="System",
+            notification_type="system",
             title="Guide Profile Created",
-            message="Your guide profile has been successfully created."
+            message="Your guide profile has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created guide profile
         )
 
 class GuideProfileListView(generics.ListAPIView):
@@ -39,9 +40,10 @@ class HotelProfileCreateView(generics.CreateAPIView):
         from notifications.services import create_notification
         create_notification(
             recipient=self.request.user,
-            notification_type="System",
+            notification_type="system",
             title="Hotel Profile Created",
-            message="Your hotel profile has been successfully created."
+            message="Your hotel profile has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created hotel profile
         )
 
 class HotelProfileListView(generics.ListAPIView):
@@ -56,18 +58,22 @@ class RoomCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         if self.request.user.role != 'hotel': # Check if the authenticated user has the role of 'hotel'
             raise ValidationError("Only hotel users can create rooms.")
-        hotel_profile = self.request.user.hotel_profile
+        try:
+            hotel_profile = self.request.user.hotel_profile
+        except HotelProfile.DoesNotExist:
+            raise ValidationError("You must create a hotel profile before creating a room.")
         serializer.save(hotel=hotel_profile)
         from notifications.services import create_notification
         create_notification(
             recipient=self.request.user,
-            notification_type="System",
+            notification_type="system",
             title="Room Created",
-            message=f"Your room '{serializer.validated_data['name']}' has been successfully created."
+            message=f"Your room '{serializer.validated_data['room_type']}' has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created room
         )
 
 class RoomListView(generics.ListAPIView):
-    get_queryset = Room.objects.all()
+    queryset = Room.objects.all()
     serializer_class = RoomSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of rooms
 
@@ -78,14 +84,18 @@ class PackageCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         if self.request.user.role != 'guide': # Check if the authenticated user has the role of 'guide'
             raise ValidationError("Only guide users can create packages.")
-        guide_profile = self.request.user.guide_profile
+        try:
+            guide_profile = self.request.user.guide_profile
+        except GuideProfile.DoesNotExist:
+            raise ValidationError("You must create a guide profile before creating a package.")
         serializer.save(guide=guide_profile)
         from notifications.services import create_notification
         create_notification(
             recipient=self.request.user,
-            notification_type="System",
+            notification_type="system",
             title="Package Created",
-            message=f"Your package '{serializer.validated_data['name']}' has been successfully created."
+            message=f"Your package '{serializer.validated_data['title']}' has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created package
         )
 
 class PackageListView(generics.ListAPIView):
