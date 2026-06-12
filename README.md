@@ -256,3 +256,15 @@ python manage.py migrate
 4. Grant schema/database permissions
 5. Configure .env
 6. Run migrations
+
+---
+
+## ⚠️ Profile Requirements & Validation
+
+To ensure database consistency, the application enforces the following profile requirements before creating listings:
+
+1. **Guide Profile Requirement**: Guide users must create their Guide Profile (`/listings/guides/create/`) before they can publish tour packages (`/listings/packages/create/`). Attempting to create a package without a guide profile will return a `400 Bad Request` with:
+   `{"detail": "You must create a guide profile before creating a package."}`
+
+2. **Hotel Profile Requirement**: Hotel users must create their Hotel Profile (`/listings/hotels/create/`) before they can list hotel rooms (`/listings/rooms/create/`). Attempting to create a room without a hotel profile will return a `400 Bad Request` with:
+   `{"detail": "You must create a hotel profile before creating a room."}`
