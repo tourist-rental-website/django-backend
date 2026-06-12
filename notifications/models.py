@@ -11,10 +11,10 @@ class Notification(models.Model):
         related_name="notifications"
     )
 
-    resource_id = models.PositiveIntegerField(
+    related_object_id = models.PositiveIntegerField(
         blank=True, 
         null=True
-    ) 
+    )
 
     # Notification type to allow client-side filtering and icon/styling decisions
     TYPE_CHOICES = (
