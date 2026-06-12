@@ -1,7 +1,7 @@
 from .models import Notification
 
 
-def create_notification(recipient, notification_type, title, message):
+def create_notification(recipient, notification_type, title, message,related_object_id=None):
     """
     Reusable helper to create a notification for a user.
 
@@ -12,6 +12,7 @@ def create_notification(recipient, notification_type, title, message):
             notification_type="booking",
             title="Booking Confirmed",
             message="Your booking for Deluxe Room has been confirmed."
+            related_object_id=booking.id  # Optional, if you want to link to a specific object
         )
     """
     return Notification.objects.create(
