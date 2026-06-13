@@ -99,4 +99,10 @@ class Package(models.Model):
         indexes = [
             models.Index(fields=["price"]),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['guide', 'title'],
+                name='unique_package_per_guide'
+            )
+        ]
         
