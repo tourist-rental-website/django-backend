@@ -37,4 +37,12 @@ class User(AbstractUser): # Custom user model extending AbstractUser to include 
 
     USERNAME_FIELD = 'email'  # Set email as the field used for authentication
     REQUIRED_FIELDS = []  # No additional required fields
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['email'],
+                name='unique_email'
+            )
+        ]
     
