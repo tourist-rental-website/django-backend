@@ -1,4 +1,4 @@
-from jsonschema import ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import GuideProfile, HotelProfile, Room, Package
@@ -40,11 +40,14 @@ class RoomCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         if self.request.user.role != 'hotel': # Check if the authenticated user has the role of 'hotel'
             raise ValidationError("Only hotel users can create rooms.")
-        hotel_profile = self.request.user.hotel_profile
+        try:
+            hotel_profile = self.request.user.hotel_profile
+        except HotelProfile.DoesNotExist:
+            raise ValidationError("You must create a Hotel Profile before creating rooms.")
         serializer.save(hotel=hotel_profile)
 
 class RoomListView(generics.ListAPIView):
-    get_queryset = Room.objects.all()
+    queryset = Room.objects.all()
     serializer_class = RoomSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of rooms
 
@@ -55,7 +58,10 @@ class PackageCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         if self.request.user.role != 'guide': # Check if the authenticated user has the role of 'guide'
             raise ValidationError("Only guide users can create packages.")
-        guide_profile = self.request.user.guide_profile
+        try:
+            guide_profile = self.request.user.guide_profile
+        except GuideProfile.DoesNotExist:
+            raise ValidationError("You must create a Guide Profile before creating packages.")
         serializer.save(guide=guide_profile)
 
 class PackageListView(generics.ListAPIView):
