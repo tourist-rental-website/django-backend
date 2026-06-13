@@ -13,6 +13,16 @@ class GuideProfileCreateView(generics.CreateAPIView):
         if self.request.user.role != 'guide': # Check if the authenticated user has the role of 'guide'
             raise ValidationError("Only guide users can create a guide profile.")
         serializer.save(user=self.request.user)
+        #local import to avoid circular import issues since notifications also imports accounts and accounts imports notifications
+        from notifications.services import create_notification
+
+        create_notification(
+            recipient=self.request.user,
+            notification_type="system",
+            title="Guide Profile Created",
+            message="Your guide profile has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created guide profile
+        )
 
 class GuideProfileListView(generics.ListAPIView):
     queryset = GuideProfile.objects.all()
@@ -27,6 +37,14 @@ class HotelProfileCreateView(generics.CreateAPIView):
         if self.request.user.role != 'hotel': # Check if the authenticated user has the role of 'hotel'
             raise ValidationError("Only hotel users can create a hotel profile.")
         serializer.save(user=self.request.user)
+        from notifications.services import create_notification
+        create_notification(
+            recipient=self.request.user,
+            notification_type="system",
+            title="Hotel Profile Created",
+            message="Your hotel profile has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created hotel profile
+        )
 
 class HotelProfileListView(generics.ListAPIView):
     queryset = HotelProfile.objects.all()
@@ -43,8 +61,16 @@ class RoomCreateView(generics.CreateAPIView):
         try:
             hotel_profile = self.request.user.hotel_profile
         except HotelProfile.DoesNotExist:
-            raise ValidationError("You must create a Hotel Profile before creating rooms.")
+            raise ValidationError("You must create a hotel profile before creating a room.")
         serializer.save(hotel=hotel_profile)
+        from notifications.services import create_notification
+        create_notification(
+            recipient=self.request.user,
+            notification_type="system",
+            title="Room Created",
+            message=f"Your room '{serializer.validated_data['room_type']}' has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created room
+        )
 
 class RoomListView(generics.ListAPIView):
     queryset = Room.objects.all()
@@ -61,8 +87,16 @@ class PackageCreateView(generics.CreateAPIView):
         try:
             guide_profile = self.request.user.guide_profile
         except GuideProfile.DoesNotExist:
-            raise ValidationError("You must create a Guide Profile before creating packages.")
+            raise ValidationError("You must create a guide profile before creating a package.")
         serializer.save(guide=guide_profile)
+        from notifications.services import create_notification
+        create_notification(
+            recipient=self.request.user,
+            notification_type="system",
+            title="Package Created",
+            message=f"Your package '{serializer.validated_data['title']}' has been successfully created.",
+            related_object_id=serializer.instance.id  # Link to the created package
+        )
 
 class PackageListView(generics.ListAPIView):
     queryset = Package.objects.all()
