@@ -19,7 +19,11 @@ class GuideProfile(models.Model):
 
     def __str__(self):
         return f"Guide: {self.user.email}"
-    
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["location"]),
+        ]
 
 class HotelProfile(models.Model):
     user = models.OneToOneField(
@@ -37,6 +41,11 @@ class HotelProfile(models.Model):
 
     def __str__(self):
         return self.hotel_name
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=["location"]),
+        ]
 
 
 class Room(models.Model):
@@ -60,6 +69,12 @@ class Room(models.Model):
 
     def __str__(self):
         return f"{self.room_type} at {self.hotel.hotel_name}"
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=["room_type"]),
+            models.Index(fields=["is_available"]),
+        ]
 
 
 class Package(models.Model):
@@ -79,3 +94,9 @@ class Package(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.guide.user.email}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["price"]),
+        ]
+        

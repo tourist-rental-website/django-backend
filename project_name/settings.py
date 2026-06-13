@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'reviews',
     'notifications',
     'chat',
-    'notifications',
 
     #django extenation
     'django_extensions',
