@@ -48,7 +48,14 @@ INSTALLED_APPS = [
     # Local apps
     'accounts',
     'listings',
+    'booking',
+    'reviews',
+    'notifications',
     'chat',
+    'notifications',
+
+    #django extenation
+    'django_extensions',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -149,6 +156,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+
+    # Pagination
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 # JWT Settings
