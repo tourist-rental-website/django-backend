@@ -351,3 +351,21 @@ A `ListAPIView` was created to return all available guide profiles.
 This endpoint will later be used by the frontend to display guides that travelers can browse and hire.
 
 * In The same way create HotelProfile also
+
+- Now in the same way we create review app with review create and list models. Here we need to be careful while creating rating attributes. we should restrict ratings to 1–5 using validators, so users can't submit:
+```
+{
+    "rating": 100
+}
+```
+so we ue 
+```
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+rating = models.PositiveIntegerField(
+    validators=[
+        MinValueValidator(1),
+        MaxValueValidator(5)
+    ]
+)
+```
