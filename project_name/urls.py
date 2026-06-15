@@ -7,6 +7,6 @@ urlpatterns = [
    path('listings/', include('listings.urls')),
    path('chat/', include('chat.urls')),
    path('booking/', include('booking.urls')),
-   
+   path('reviews/', include('reviews.urls')),
    path('notifications/', include('notifications.urls')),
 ]
