@@ -12,7 +12,7 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny] # AllowAny means that any user (authenticated or not) can access this view, which is appropriate for registration endpoints
 
-class MeView(APIView):
+class MeView(APIView): # APIView is a more flexible view that allows us to define custom behavior for different HTTP methods (GET, POST, PATCH, etc.)
     permission_classes = [IsAuthenticated]
 
     def get(self, request): # This method will be called when a GET request is made to the /me/ endpoint
