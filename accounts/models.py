@@ -34,6 +34,7 @@ class User(AbstractUser): # Custom user model extending AbstractUser to include 
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     phone = models.CharField(max_length=20, blank=True, null=True)  # Optional phone number field
+    profile_image = models.ImageField(blank=True, null=True)
 
     USERNAME_FIELD = 'email'  # Set email as the field used for authentication
     REQUIRED_FIELDS = []  # No additional required fields
@@ -45,4 +46,11 @@ class User(AbstractUser): # Custom user model extending AbstractUser to include 
                 name='unique_email'
             )
         ]
+    
+class TravelerProfile(models.Model):
+    user = models.OneToOneField( # One-to-one relationship with User model, just like foregin key but only one guide profile per user 
+        User,                    # whereas foreign key allows multiple guide profiles for a single user
+        on_delete=models.CASCADE,
+        related_name="traveler_profile"
+    )
     
