@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User,TravelerProfile
 
 class RegisterSerializer(serializers.ModelSerializer):
     # Inherits from ModelSerializer to automatically generate fields from the User model
@@ -35,16 +35,38 @@ class RegisterSerializer(serializers.ModelSerializer):
         # 2. Plain create() would store the password in plaintext (security risk)
         # **validated_data unpacks the cleaned fields as keyword arguments
         return User.objects.create_user(**validated_data)
+    
 
-class UserSerializer(serializers.ModelSerializer):
+
+#User Serializer hataideko yesbata ani traveler serializer banako
+
+class TravelerProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email', read_only=True)
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+    phone = serializers.CharField(source='user.phone')
+    profile_image = serializers.ImageField(source='user.profile_image')
+    role = serializers.CharField(source='user.role', read_only=True)
     class Meta:
-        model = User
+        model = TravelerProfile
         fields = [
             "id",
             "email",
             "first_name",
             "last_name",
             "phone",
-            "role",
+            "profile_image",
+            "role"
         ]
-        read_only_fields = ["id", "email", "role"] # id and email cannot be updated by the user
+        read_only_fields=['user']
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', {})
+
+        user = instance.user
+        user.first_name = user_data.get('first_name', user.first_name)
+        user.last_name = user_data.get('last_name', user.last_name)
+        user.phone = user_data.get('phone', user.phone)
+        user.profile_image = user_data.get('profile_image', user.profile_image)
+        user.save()
+
+        return super().update(instance, validated_data)

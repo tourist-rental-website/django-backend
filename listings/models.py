@@ -12,8 +12,8 @@ class GuideProfile(models.Model):
     bio = models.TextField(blank=True, null=True)
     experience_years = models.IntegerField(default=0)
     languages = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255)
-    price_per_day = models.DecimalField(max_digits=10, decimal_places=2)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=10)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -34,8 +34,8 @@ class HotelProfile(models.Model):
 
     hotel_name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    location = models.CharField(max_length=255)
-    contact_number = models.CharField(max_length=20)
+    location = models.CharField(max_length=255,blank=True,null=True)
+    contact_number = models.CharField(max_length=20,blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
