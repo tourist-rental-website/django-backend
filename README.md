@@ -268,3 +268,39 @@ To ensure database consistency, the application enforces the following profile r
 
 2. **Hotel Profile Requirement**: Hotel users must create their Hotel Profile (`/listings/hotels/create/`) before they can list hotel rooms (`/listings/rooms/create/`). Attempting to create a room without a hotel profile will return a `400 Bad Request` with:
    `{"detail": "You must create a hotel profile before creating a room."}`
+
+
+### 4. Insert Seed Data (Optional)
+
+To populate the database with dummy data for local development and testing, run the provided seed file after migrations:
+
+```bash
+# Linux/macOS
+sudo -u postgres psql -d tourist_rental_db -f seed_data.sql
+
+# If your postgres user has a password set
+PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d tourist_rental_db -f seed_data.sql
+
+# Windows (PowerShell)
+$env:PGPASSWORD="postgres"
+psql -U postgres -h localhost -p 5432 -d tourist_rental_db -f seed_data.sql
+```
+
+> ⚠️ Always run `python manage.py migrate` **before** the seed script, otherwise it will fail with `relation does not exist`.
+
+**Seed data includes:**
+
+| Data | Count |
+|---|---|
+| Users (travelers, guides, hotels, admin) | 12 |
+| Guide & Hotel profiles | 3 each |
+| Rooms | 11 |
+| Tour packages | 6 |
+| Room & Package bookings | 8 + 7 |
+| Reviews, chats, notifications | 9, 11, 12 |
+
+Seed user passwords are placeholder hashes. Set a real password with:
+
+```bash
+python manage.py changepassword <email>
+```
