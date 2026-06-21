@@ -58,6 +58,37 @@ class ConversationListView(generics.ListAPIView):
         except (AttributeError, HotelProfile.DoesNotExist):
             return Conversation.objects.filter(user=user).prefetch_related('messages')
 
+    def post(self, request, *args, **kwargs):
+        hotel_id = request.data.get('hotel_id')
+        if not hotel_id:
+            return Response(
+                {'error': 'hotel_id is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            hotel = HotelProfile.objects.get(id=hotel_id)
+        except HotelProfile.DoesNotExist:
+            return Response(
+                {'error': 'Hotel not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        if hotel.user == request.user:
+            return Response(
+                {'error': 'You cannot start a conversation with your own hotel'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        conversation, created = Conversation.objects.get_or_create(
+            user=request.user,
+            hotel=hotel
+        )
+        
+        serializer = ConversationSerializer(conversation)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 
 class ConversationDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]

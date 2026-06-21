@@ -73,9 +73,15 @@ class RoomCreateView(generics.CreateAPIView):
         )
 
 class RoomListView(generics.ListAPIView):
-    queryset = Room.objects.all()
     serializer_class = RoomSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of rooms
+
+    def get_queryset(self):
+        queryset = Room.objects.all()
+        hotel_id = self.request.query_params.get('hotel')
+        if hotel_id:
+            queryset = queryset.filter(hotel_id=hotel_id)
+        return queryset
 
 class PackageCreateView(generics.CreateAPIView):
     serializer_class = PackageSerializer
@@ -102,3 +108,28 @@ class PackageListView(generics.ListAPIView):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of packages
+
+
+class HotelProfileDetailView(generics.RetrieveAPIView):
+    queryset = HotelProfile.objects.all()
+    serializer_class = HotelProfileSerializer
+    permission_classes = [AllowAny]
+
+
+class GuideProfileDetailView(generics.RetrieveAPIView):
+    queryset = GuideProfile.objects.all()
+    serializer_class = GuideProfileSerializer
+    permission_classes = [AllowAny]
+
+
+class PackageDetailView(generics.RetrieveAPIView):
+    queryset = Package.objects.all()
+    serializer_class = PackageSerializer
+    permission_classes = [AllowAny]
+
+
+class RoomDetailView(generics.RetrieveAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+    permission_classes = [AllowAny]
+
