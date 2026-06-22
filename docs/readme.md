@@ -369,3 +369,85 @@ rating = models.PositiveIntegerField(
     ]
 )
 ```
+
+# Architecture
+This project uses a role-based user system built on Django REST Framework (DRF), where a single User model is extended using role-specific profile models.
+```
+accounts_user (Base User)
+        │
+        ├── GuideProfile (OneToOne)
+        └── HotelProfile (OneToOne)
+```
+2. System Architecture
+Key Idea
+- User → stores authentication + common identity data
+- GuideProfile → stores guide-specific information
+- HotelProfile → stores hotel-specific information
+
+This avoids duplication and keeps the system scalable.
+
+2. Nested Fields Concept
+
+Nested fields allow accessing related model data inside serializers using source.
+
+Example
+first_name = serializers.CharField(source='user.first_name')
+phone = serializers.CharField(source='user.phone')
+profile_image = serializers.ImageField(source='user.profile_image')
+Meaning
+These fields:
+Do NOT belong to GuideProfile or HotelProfile
+They Belong to User model and are accessed via relationship:
+Profile → User → Field
+
+3. Updating Nested Fields
+
+Nested fields require explicit handling during update.
+
+Incorrect Approach 
+- instance.first_name = "John"
+Correct Approach 
+= instance.user.first_name = "John"
+instance.user.save()
+
+4. Handling Multi-Table Updates in Serializer
+
+When a serializer includes both:
+
+Profile fields
+Nested User fields
+
+We split the data manually.
+
+Example
+def update(self, instance, validated_data):
+    user_data = validated_data.pop("user", {})
+
+    # Update User table
+    user = instance.user
+    user.first_name = user_data.get("first_name", user.first_name)
+    user.phone = user_data.get("phone", user.phone)
+    user.profile_image = user_data.get("profile_image", user.profile_image)
+    user.save()
+
+    # Update Profile table
+    instance.bio = validated_data.get("bio", instance.bio)
+    instance.location = validated_data.get("location", instance.location)
+    instance.save()
+
+    return instance
+
+5. super().update() vs Manual Update
+
+- super().update()
+return super().update(instance, validated_data)
+Use when:
+Only one model is involved
+No nested relationships
+
+- Manual Update
+instance.field = validated_data.get("field", instance.field)
+instance.save()
+Use when:
+Multiple models involved (User + Profile)
+Nested fields exist

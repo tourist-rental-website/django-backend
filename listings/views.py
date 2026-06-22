@@ -3,48 +3,38 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import GuideProfile, HotelProfile, Room, Package
 from .serializers import GuideProfileSerializer, HotelProfileSerializer, RoomSerializer, PackageSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 
-
-class GuideProfileCreateView(generics.CreateAPIView):
+class GuideProfileUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = GuideProfileSerializer
-    permission_classes = [IsAuthenticated] # Only authenticated users can create a guide profile
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser] # allows multipart/form-data requests (file uploads like images + normal form fields)
 
-    def perform_create(self, serializer): 
-        if self.request.user.role != 'guide': # Check if the authenticated user has the role of 'guide'
-            raise ValidationError("Only guide users can create a guide profile.")
-        serializer.save(user=self.request.user)
-        #local import to avoid circular import issues since notifications also imports accounts and accounts imports notifications
-        from notifications.services import create_notification
+    def get_object(self):
+        user = self.request.user
 
-        create_notification(
-            recipient=self.request.user,
-            notification_type="system",
-            title="Guide Profile Created",
-            message="Your guide profile has been successfully created.",
-            related_object_id=serializer.instance.id  # Link to the created guide profile
-        )
+        if user.role != "guide":
+            raise ValidationError("Only guide users can access guide profile.")
+
+        return user.guide_profile
 
 class GuideProfileListView(generics.ListAPIView):
     queryset = GuideProfile.objects.all()
     serializer_class = GuideProfileSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of guides
 
-class HotelProfileCreateView(generics.CreateAPIView):
+class HotelProfileUpadateView(generics.RetrieveUpdateAPIView):
     serializer_class = HotelProfileSerializer
-    permission_classes = [IsAuthenticated] # Only authenticated users can create a hotel profile
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser] # allows multipart/form-data requests (file uploads like images + normal form fields)
 
-    def perform_create(self, serializer): 
-        if self.request.user.role != 'hotel': # Check if the authenticated user has the role of 'hotel'
-            raise ValidationError("Only hotel users can create a hotel profile.")
-        serializer.save(user=self.request.user)
-        from notifications.services import create_notification
-        create_notification(
-            recipient=self.request.user,
-            notification_type="system",
-            title="Hotel Profile Created",
-            message="Your hotel profile has been successfully created.",
-            related_object_id=serializer.instance.id  # Link to the created hotel profile
-        )
+    def get_object(self):
+        user = self.request.user
+
+        if user.role != "hotel":
+            raise ValidationError("Only guide users can access guide profile.")
+
+        return user.hotel_profile
 
 class HotelProfileListView(generics.ListAPIView):
     queryset = HotelProfile.objects.all()
