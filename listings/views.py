@@ -1,7 +1,9 @@
 from rest_framework.exceptions import ValidationError
-from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework import generics, status
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import GuideProfile, HotelProfile, Room, Package
+from .models import GuideProfile, HotelProfile, Room, Package, RoomImage
 from .serializers import GuideProfileSerializer, HotelProfileSerializer, RoomSerializer, PackageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -43,23 +45,59 @@ class HotelProfileListView(generics.ListAPIView):
 
 class RoomCreateView(generics.CreateAPIView):
     serializer_class = RoomSerializer
-    permission_classes = [IsAuthenticated] # Only authenticated users can create a room
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        if self.request.user.role != 'hotel': # Check if the authenticated user has the role of 'hotel'
+        if self.request.user.role != 'hotel':
             raise ValidationError("Only hotel users can create rooms.")
+
         try:
             hotel_profile = self.request.user.hotel_profile
         except HotelProfile.DoesNotExist:
             raise ValidationError("You must create a hotel profile before creating a room.")
+
         serializer.save(hotel=hotel_profile)
+
         from notifications.services import create_notification
         create_notification(
             recipient=self.request.user,
             notification_type="system",
             title="Room Created",
             message=f"Your room '{serializer.validated_data['room_type']}' has been successfully created.",
-            related_object_id=serializer.instance.id  # Link to the created room
+            related_object_id=serializer.instance.id
+        )
+
+class RoomImageUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, room_id):
+        try:
+            room = Room.objects.get(id=room_id)
+        except Room.DoesNotExist:
+            return Response({"error": "Room not found"}, status=404)
+
+        # Optional: check ownership
+        if request.user.role != "hotel":
+            return Response({"error": "Only hotel users allowed"}, status=403)
+
+        images = request.FILES.getlist("images")
+
+        if not images:
+            return Response({"error": "No images provided"}, status=400)
+
+        created_images = []
+
+        for img in images:
+            obj = RoomImage.objects.create(room=room, image=img)
+            created_images.append(obj.id)
+
+        return Response(
+            {
+                "message": "Images uploaded successfully",
+                "image_ids": created_images
+            },
+            status=status.HTTP_201_CREATED
         )
 
 class RoomListView(generics.ListAPIView):
