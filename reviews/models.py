@@ -7,9 +7,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class GuideReview(models.Model):
     traveler = models.ForeignKey(User, on_delete=models.CASCADE, related_name='guide_reviews')
     guide = models.ForeignKey(GuideProfile, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField(
+    rating = models.IntegerField(
         validators=[
-        MinValueValidator(1),
+        MinValueValidator(0),
         MaxValueValidator(5)
     ]
     )
@@ -19,9 +19,9 @@ class GuideReview(models.Model):
 class HotelReview(models.Model):
     traveler = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hotel_reviews')
     hotel = models.ForeignKey(HotelProfile, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField(
+    rating = models.IntegerField(
         validators=[
-        MinValueValidator(1),
+        MinValueValidator(0),
         MaxValueValidator(5)
     ]
     )
