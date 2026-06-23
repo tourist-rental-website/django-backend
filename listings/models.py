@@ -64,7 +64,6 @@ class Room(models.Model):
     room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES)
     price_per_night = models.DecimalField(max_digits=10, decimal_places=2)
     capacity = models.PositiveIntegerField()
-    description = models.TextField(blank=True, null=True)
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
@@ -76,6 +75,17 @@ class Room(models.Model):
             models.Index(fields=["is_available"]),
         ]
 
+class RoomImage(models.Model):
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+    image = models.ImageField(upload_to="room_images/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image of {self.room.room_type} room at {self.room.hotel.hotel_name}"
 
 class Package(models.Model):
     guide = models.ForeignKey(
