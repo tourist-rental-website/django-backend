@@ -368,9 +368,6 @@ rating = models.PositiveIntegerField(
         MaxValueValidator(5)
     ]
 )
-<<<<<<< HEAD
-```
-=======
 ```
 
 # Architecture
@@ -454,4 +451,3 @@ instance.save()
 Use when:
 Multiple models involved (User + Profile)
 Nested fields exist
->>>>>>> 0a30661e755ea843fdd53e9abaf1faee75efdb1b
