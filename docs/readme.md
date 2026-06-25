@@ -335,14 +335,21 @@ class GuideProfileCreateView(generics.CreateAPIView):
 
 ### Why use `perform_create()`?
 
-Instead of allowing clients to send a user ID, the authenticated user is automatically attached to the GuideProfile.
-
+```perform_create()``` is used to automatically attach the authenticated user's hotel profile to the room being created instead of allowing the client to provide a hotel ID. This prevents users from creating rooms for other hotels.
 ```python
-serializer.save(user=self.request.user)
+    def perform_create(self, serializer):
+        if self.request.user.role != 'hotel':
+            raise ValidationError("Only hotel users can create rooms.")
+
+        try:
+            hotel_profile = self.request.user.hotel_profile-->there is user column in hotel table and user.hotel_profile gets the hotel of authenticated user via reverse lookup 
+        except HotelProfile.DoesNotExist:
+            raise ValidationError("You must create a hotel profile before creating a room.")
+
+        serializer.save(hotel=hotel_profile)
 ```
-
-This ensures that users can only create guide profiles for themselves.
-
+Here, serializer.save() creates and saves the Room object to the database. The hotel=hotel_profile argument sets the room's hotel foreign key to the authenticated user's hotel profile.
+This ensures that rooms can only be created under the hotel profile that belongs to the logged-in user.
 
 ### List Guide Profiles
 
