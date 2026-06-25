@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import GuideProfile, HotelProfile, Room, Package, RoomImage
 from .serializers import GuideProfileSerializer, HotelProfileSerializer, RoomSerializer, PackageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.generics import ListCreateAPIView
 
 class GuideProfileUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = GuideProfileSerializer
@@ -43,22 +44,46 @@ class HotelProfileListView(generics.ListAPIView):
     serializer_class = HotelProfileSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of hotels
 
-class RoomCreateView(generics.CreateAPIView):
+class RoomListCreateView(generics.ListCreateAPIView):
     serializer_class = RoomSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Room.objects.all()
+        hotel_id = self.request.query_params.get("hotel")
+        if hotel_id:
+            queryset = queryset.filter(hotel_id=hotel_id)
+        return queryset
+
+
+    def get_permissions(self):
+
+        if self.request.method == "POST":
+            return [IsAuthenticated()]
+
+        return [AllowAny()]
+
 
     def perform_create(self, serializer):
-        if self.request.user.role != 'hotel':
-            raise ValidationError("Only hotel users can create rooms.")
+
+        if self.request.user.role != "hotel":
+            raise ValidationError(
+                "Only hotel users can create rooms."
+            )
 
         try:
             hotel_profile = self.request.user.hotel_profile
+
         except HotelProfile.DoesNotExist:
-            raise ValidationError("You must create a hotel profile before creating a room.")
+            raise ValidationError(
+                "You must create a hotel profile before creating a room."
+            )
+
 
         serializer.save(hotel=hotel_profile)
 
+
         from notifications.services import create_notification
+
         create_notification(
             recipient=self.request.user,
             notification_type="system",
@@ -100,11 +125,6 @@ class RoomImageUploadView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-class RoomListView(generics.ListAPIView):
-    queryset = Room.objects.all()
-    serializer_class = RoomSerializer
-    permission_classes = [AllowAny] # Unauthenticated users can also view the list of rooms
-
 class PackageCreateView(generics.CreateAPIView):
     serializer_class = PackageSerializer
     permission_classes = [IsAuthenticated] # Only authenticated users can create a package
@@ -130,3 +150,27 @@ class PackageListView(generics.ListAPIView):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of packages
+
+
+class HotelProfileDetailView(generics.RetrieveAPIView):
+    queryset = HotelProfile.objects.all()
+    serializer_class = HotelProfileSerializer
+    permission_classes = [AllowAny]
+
+
+class GuideProfileDetailView(generics.RetrieveAPIView):
+    queryset = GuideProfile.objects.all()
+    serializer_class = GuideProfileSerializer
+    permission_classes = [AllowAny]
+
+
+class PackageDetailView(generics.RetrieveAPIView):
+    queryset = Package.objects.all()
+    serializer_class = PackageSerializer
+    permission_classes = [AllowAny]
+
+
+class RoomDetailView(generics.RetrieveAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+    permission_classes = [AllowAny]

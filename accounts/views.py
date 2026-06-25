@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User
 from .serializers import *
 from listings.serializers import GuideProfileSerializer, HotelProfileSerializer
@@ -25,6 +26,7 @@ def getprofile(user):
 
 class MeView(APIView): # APIView is a more flexible view that allows us to define custom behavior for different HTTP methods (GET, POST, PATCH, etc.)
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # allows multipart/form-data requests (file uploads)
 
     def get(self, request): # This method will be called when a GET request is made to the /me/ endpoint
         profile = getprofile(request.user)

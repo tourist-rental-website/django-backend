@@ -178,3 +178,8 @@ SIMPLE_JWT = {
 # CORS Settings
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000').split(',')
 
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = 'static/'
+# Add these lines for Media Files support:
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

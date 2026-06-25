@@ -1,0 +1,804 @@
+{
+  "info": {
+    "_postman_id": "fb8b7963-d0fc-42bf-88b0-a7bf4fc92fb1",
+    "name": "Tourist Rental API",
+    "description": "Complete API collection for Tourist Rental website including Chat tied to Hotels",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40838083"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Traveler",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"traveler@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Traveler\",\n  \"phone\": \"1234567890\",\n  \"role\": \"traveler\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Traveler",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('access_token', jsonData.access);",
+                  "    pm.environment.set('refresh_token', jsonData.refresh);",
+                  "    pm.test('Login successful & token saved', function() {",
+                  "        pm.expect(jsonData.access).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"traveler@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Hotel Owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hotel@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Alice\",\n  \"last_name\": \"HotelOwner\",\n  \"phone\": \"9876543210\",\n  \"role\": \"hotel\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Hotel Owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('access_token', jsonData.access);",
+                  "    pm.test('Login successful & token saved', function() {",
+                  "        pm.expect(jsonData.access).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hotel@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Guide",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guide@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Bob\",\n  \"last_name\": \"GuideOwner\",\n  \"phone\": \"5556667777\",\n  \"role\": \"guide\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Guide",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', jsonData.access);",
+                  "    pm.test('Login successful & token saved', function() {",
+                  "        pm.expect(jsonData.access).to.exist;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guide@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/accounts/me/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                "me",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hotels",
+      "item": [
+        {
+          "name": "Create Hotel Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hotel_name\": \"Lakeside Mountain Resort\",\n  \"description\": \"Luxury hotel with scenic view of mountains\",\n  \"location\": \"Pokhara\",\n  \"contact_number\": \"+977-61-555555\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/listings/hotels/create/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "hotels",
+                "create",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Hotels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/hotels/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "hotels",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Hotel Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/hotels/{{hotel_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "hotels",
+                "{{hotel_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Create Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_type\": \"deluxe\",\n  \"price_per_night\": \"120.00\",\n  \"capacity\": 2,\n  \"description\": \"A spacious deluxe room with attached bathroom and balcony\",\n  \"is_available\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/listings/rooms/create/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "rooms",
+                "create",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Rooms",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/rooms/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "rooms",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Room Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/rooms/{{room_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "rooms",
+                "{{room_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Rooms in Hotel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/rooms/?hotel={{hotel_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "rooms",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "hotel",
+                  "value": "{{hotel_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Guides",
+      "item": [
+        {
+          "name": "Create Guide Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Mountain climbing enthusiast and licensed guide\",\n  \"experience_years\": 6,\n  \"languages\": \"English, Nepali, German\",\n  \"location\": \"Solukhumbu\",\n  \"price_per_day\": \"65.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/listings/guides/create/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "guides",
+                "create",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Guides",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/guides/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "guides",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Guide Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/guides/{{guide_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "guides",
+                "{{guide_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Packages",
+      "item": [
+        {
+          "name": "Create Package",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Everest View Trek\",\n  \"description\": \"5-day trek package with panoramic view of Mount Everest\",\n  \"price\": \"450.00\",\n  \"duration_days\": 5,\n  \"location\": \"Namche Bazaar\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/listings/packages/create/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "packages",
+                "create",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Packages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/packages/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "packages",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Package Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listings/packages/{{package_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listings",
+                "packages",
+                "{{package_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Create Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('conversation_id', jsonData.id);",
+                  "    pm.test('Conversation created/retrieved', function() {",
+                  "        pm.expect(jsonData.id).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hotel_id\": {{hotel_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chat/conversations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "chat",
+                "conversations",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/chat/conversations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "chat",
+                "conversations",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/chat/conversations/{{conversation_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "chat",
+                "conversations",
+                "{{conversation_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello resort! Is the deluxe room available on June 20?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chat/conversations/{{conversation_id}}/send_message/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "chat",
+                "conversations",
+                "{{conversation_id}}",
+                "send_message",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/chat/conversations/{{conversation_id}}/messages/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "chat",
+                "conversations",
+                "{{conversation_id}}",
+                "messages",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Message as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chat/conversations/{{conversation_id}}/mark_as_read/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "chat",
+                "conversations",
+                "{{conversation_id}}",
+                "mark_as_read",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "conversation_id",
+      "value": "1"
+    }
+  ]
+}
