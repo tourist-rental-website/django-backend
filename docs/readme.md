@@ -351,6 +351,9 @@ class GuideProfileCreateView(generics.CreateAPIView):
 Here, serializer.save() creates and saves the Room object to the database. The hotel=hotel_profile argument sets the room's hotel foreign key to the authenticated user's hotel profile.
 This ensures that rooms can only be created under the hotel profile that belongs to the logged-in user.
 
+- we do not need perform_create() if the serializer can create the object directly from the request data.
+- Use perform_create() when the server needs to set additional model attributes that doesnot directly come from client request directly or perform extra actions (emails, notifications, logging, related object creation, etc.).
+
 ### List Guide Profiles
 
 A `ListAPIView` was created to return all available guide profiles.
@@ -458,3 +461,4 @@ instance.save()
 Use when:
 Multiple models involved (User + Profile)
 Nested fields exist
+

@@ -47,7 +47,6 @@ class HotelProfile(models.Model):
             models.Index(fields=["location"]),
         ]
 
-
 class Room(models.Model):
     hotel = models.ForeignKey(
         HotelProfile,
