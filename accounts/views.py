@@ -36,8 +36,13 @@ class RegisterView(generics.CreateAPIView):
 
         # Build verification URL
         verification_url = (
-            f"http://127.0.0.1:8000/accounts/verify/{uid}/{token}/"
+            f"http://127.0.0.1:8000/accounts/verify/{uid}/{token}/"  
         )
+        
+#        # use this to redirect in react app - this is reacts url
+#        verification_url = (
+#            f"http://localhost:5173/verify-email/{uid}/{token}/"
+#        )
 
         # Send verification email
         send_mail(
