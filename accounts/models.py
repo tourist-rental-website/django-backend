@@ -35,7 +35,7 @@ class User(AbstractUser): # Custom user model extending AbstractUser to include 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     phone = models.CharField(max_length=20, blank=True, null=True)  # Optional phone number field
     profile_image = models.ImageField(blank=True, null=True)
-
+    is_verified = models.BooleanField(default = False)
     USERNAME_FIELD = 'email'  # Set email as the field used for authentication
     REQUIRED_FIELDS = []  # No additional required fields
 

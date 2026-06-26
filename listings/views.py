@@ -78,9 +78,7 @@ class RoomListCreateView(generics.ListCreateAPIView):
                 "You must create a hotel profile before creating a room."
             )
 
-
         serializer.save(hotel=hotel_profile)
-
 
         from notifications.services import create_notification
 
@@ -102,7 +100,7 @@ class RoomImageUploadView(APIView):
         except Room.DoesNotExist:
             return Response({"error": "Room not found"}, status=404)
 
-        # Optional: check ownership
+        # check ownership
         if request.user.role != "hotel":
             return Response({"error": "Only hotel users allowed"}, status=403)
 

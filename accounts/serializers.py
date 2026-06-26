@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import User,TravelerProfile
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 
 class RegisterSerializer(serializers.ModelSerializer):
     # Inherits from ModelSerializer to automatically generate fields from the User model
@@ -35,8 +37,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         # 2. Plain create() would store the password in plaintext (security risk)
         # **validated_data unpacks the cleaned fields as keyword arguments
         return User.objects.create_user(**validated_data)
-    
 
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_token(cls, user):
+        return super().get_token(user)
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.is_verified:
+            raise AuthenticationFailed(
+                "Please verify your email before logging in."
+            )
+    
+        return data
 
 #User Serializer hataideko yesbata ani traveler serializer banako
 
