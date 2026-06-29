@@ -16,6 +16,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
+from .services import create_user_profile, send_verification_email
 
 
 class RegisterView(generics.CreateAPIView):
@@ -24,38 +25,12 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        # Save the user
         user = serializer.save()
 
-        # Create corresponding profile
-        getprofile(user)
+        create_user_profile(user)
 
-        # Generate verification token and encoded user id
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
+        send_verification_email(user)
 
-        # Build verification URL
-        verification_url = (
-            f"http://127.0.0.1:8000/accounts/verify/{uid}/{token}/"  
-        )
-        
-#        # use this to redirect in react app - this is reacts url
-#        verification_url = (
-#            f"http://localhost:5173/verify-email/{uid}/{token}/"
-#        )
-
-        # Send verification email
-        send_mail(
-            subject="Verify your Email",
-            message=(
-                f"Hi {user.first_name},\n\n"
-                f"Click the link below to verify your email:\n\n"
-                f"{verification_url}"
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-        )
-        
 class VerifyEmailView(APIView):
 
     permission_classes = [AllowAny]
@@ -91,24 +66,14 @@ class VerifyEmailView(APIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-def getprofile(user):
-    if user.role == "traveler":
-        profile = TravelerProfile.objects.get_or_create(user=user)[0]
-
-    elif user.role == "guide":
-        profile = GuideProfile.objects.get_or_create(user=user)[0]
-
-    elif user.role == "hotel":
-        profile = HotelProfile.objects.get_or_create(user=user)[0]
-
-    return profile
 
 class MeView(APIView): # APIView is a more flexible view that allows us to define custom behavior for different HTTP methods (GET, POST, PATCH, etc.)
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]  # allows multipart/form-data requests (file uploads)
 
     def get(self, request): # This method will be called when a GET request is made to the /me/ endpoint
-        profile = getprofile(request.user)
+        profile = create_user_profile(request.user)
+
         if(request.user.role =='traveler'):
             serializer = TravelerProfileSerializer(profile)
         
