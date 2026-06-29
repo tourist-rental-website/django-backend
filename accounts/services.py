@@ -4,8 +4,8 @@ from django.core.mail import send_mail
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from listings.models import GuideProfile, HotelProfile, TravelerProfile
-
+from listings.models import GuideProfile, HotelProfile
+from .models import TravelerProfile
 
 def create_user_profile(user):
     """
@@ -26,7 +26,7 @@ def send_verification_email(user):
     """
     Generates a verification link and sends it to the user's email.
     """
-
+    
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
 

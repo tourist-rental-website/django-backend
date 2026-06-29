@@ -7,6 +7,8 @@ from .models import GuideProfile, HotelProfile, Room, Package, RoomImage
 from .serializers import GuideProfileSerializer, HotelProfileSerializer, RoomSerializer, PackageSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListCreateAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import GuideProfileFilter
 
 class GuideProfileUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = GuideProfileSerializer
@@ -25,6 +27,9 @@ class GuideProfileListView(generics.ListAPIView):
     queryset = GuideProfile.objects.all()
     serializer_class = GuideProfileSerializer
     permission_classes = [AllowAny] # Unauthenticated users can also view the list of guides
+    
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = GuideProfileFilter
 
 class HotelProfileUpadateView(generics.RetrieveUpdateAPIView):
     serializer_class = HotelProfileSerializer
