@@ -462,3 +462,4 @@ Use when:
 Multiple models involved (User + Profile)
 Nested fields exist
 
+### Class Meta 
