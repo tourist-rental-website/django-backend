@@ -462,4 +462,131 @@ Use when:
 Multiple models involved (User + Profile)
 Nested fields exist
 
+## Filtering
+
+Filtering allows clients to retrieve only the data they need instead of fetching every record.
+
+### 1. Basic Filtering (`filterset_fields`)
+
+Use `filterset_fields` when you want to allow filtering by model fields using exact matching.
+
+```python
+from django_filters.rest_framework import DjangoFilterBackend
+
+class GuideProfileListView(generics.ListAPIView):
+    queryset = GuideProfile.objects.all()
+    serializer_class = GuideProfileSerializer
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["location", "experience_years"]
+```
+
+Example:
+
+```http
+GET /guides/?location=Pokhara
+GET /guides/?experience_years=5
+```
+
+---
+
+### 2. Custom Filtering (`FilterSet`)
+
+Use a custom `FilterSet` when you need more control over filtering.
+
+Create a `filters.py` file:
+
+```python
+import django_filters
+from .models import GuideProfile
+
+class GuideProfileFilter(django_filters.FilterSet):
+
+    location = django_filters.CharFilter(
+        field_name="location",
+        lookup_expr="icontains"
+    )
+
+    min_experience = django_filters.NumberFilter(
+        field_name="experience_years",
+        lookup_expr="gte"
+    )
+
+    max_experience = django_filters.NumberFilter(
+        field_name="experience_years",
+        lookup_expr="lte"
+    )
+
+    class Meta:
+        model = GuideProfile
+        fields = []
+```
+
+Use it in the view:
+
+```python
+filter_backends = [DjangoFilterBackend]
+filterset_class = GuideProfileFilter
+```
+
+Example:
+
+```http
+GET /guides/?location=pokhara
+GET /guides/?min_experience=5
+GET /guides/?max_experience=10
+GET /guides/?min_experience=5&max_experience=10
+```
+### `Meta.fields` in a FilterSet
+
+```python
+class Meta:
+    model = GuideProfile
+    fields = ["location", "experience_years"]
+```
+
+`fields` tells Django which model fields should automatically become filterable.
+
+If custom filters are defined manually, `fields` can be left empty:
+
+```python
+class Meta:
+    model = GuideProfile
+    fields = []
+```
+
+---
+
+### Filtering vs Business Rules (`get_queryset()`)
+
+`FilterSet` is used when **the client chooses how to filter the data**.
+
+Example:
+
+```http
+GET /guides/?location=Pokhara
+GET /guides/?min_experience=5
+```
+
+`get_queryset()` is used when **the backend enforces business rules**, regardless of what the client requests.
+
+Example:
+
+```python
+def get_queryset(self):
+    user = self.request.user
+
+    if user.is_authenticated and user.role == "hotel":
+        return Room.objects.filter(hotel=user.hotel_profile)
+
+    return Room.objects.filter(is_available=True)
+```
+
+Business rules:
+
+- Anonymous users → Only available rooms.
+- Travelers → Only available rooms.
+- Hotels → Only their own rooms.
+
+This ensures that users cannot bypass restrictions by manually calling the API with tools like Postman.
 ### Class Meta 
