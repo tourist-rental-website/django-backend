@@ -58,3 +58,26 @@ def send_verification_email(user):
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
     )
+
+def send_password_reset_email(user):
+    """
+    Generates a password reset link and sends it to the user's email.
+    """
+    
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+
+    reset_url = f"{settings.DJANGO_URL}/reset-password/{uid}/{token}/"
+
+    send_mail(
+        subject="Reset your Password",
+        message=(
+            f"Hi {user.first_name},\n\n"
+            f"You requested a password reset.\n\n"
+            f"Please reset your password by clicking the link below:\n\n"
+            f"{reset_url}\n\n"
+            f"If you didn't request this, you can safely ignore this email."
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+    )

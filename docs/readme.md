@@ -590,6 +590,39 @@ Business rules:
 
 This ensures that users cannot bypass restrictions by manually calling the API with tools like Postman.
 
+# Email Verification Flow - Gmail SMTP
+
+```
+User registers
+      │
+      ▼
+Django creates user (is_verified=False)
+      │
+      ▼
+Django generates
+    • uid
+    • token
+      │
+      ▼
+Django connects to Gmail SMTP
+(using EMAIL_HOST_USER & EMAIL_HOST_PASSWORD)
+      │
+      ▼
+Gmail sends email
+      │
+      ▼
+User clicks verification link
+      │
+      ▼
+VerifyEmailView
+      │
+      ▼
+Token verified
+      │
+      ▼
+user.is_verified = True
+```
+
 # Google OAuth - Authentication Flow
 
 ## What is Google OAuth?
