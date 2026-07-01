@@ -6,7 +6,6 @@ from rest_framework.exceptions import AuthenticationFailed
 class RegisterSerializer(serializers.ModelSerializer):
     # Inherits from ModelSerializer to automatically generate fields from the User model
     # This serializer handles validation and deserialization of registration data
-
     # Override the default password field because:
     # 1. write_only=True prevents password from appearing in API responses (security)
     # 2. min_length=8 adds validation that auto-generation cannot infer from the model
@@ -14,11 +13,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         write_only=True,
         min_length=8
     )
-
     class Meta:
         # Bind this serializer to the User model
         model = User
-
         # Whitelist only these fields — anything not listed is ignored
         # in both incoming requests and outgoing responses
         fields = (
@@ -29,7 +26,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             "phone",
             "role",
         )
-
     def create(self, validated_data):
         # Called when serializer.save() is invoked on a POST request
         # Uses create_user() instead of create() because:
@@ -38,9 +34,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         # **validated_data unpacks the cleaned fields as keyword arguments
         return User.objects.create_user(**validated_data)
 
+class ResetPasswordSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(
+        min_length=8,
+        write_only=True
+    )
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-
     @classmethod
     def get_token(cls, user):
         return super().get_token(user)
