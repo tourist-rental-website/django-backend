@@ -55,6 +55,27 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     
         return data
 
+
+class GoogleAuthSerializer(serializers.Serializer):
+    id_token = serializers.CharField()
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "role",
+            "profile_image",
+            "is_verified",
+        )
+
+
 #User Serializer hataideko yesbata ani traveler serializer banako
 
 class TravelerProfileSerializer(serializers.ModelSerializer):

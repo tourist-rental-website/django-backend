@@ -462,4 +462,220 @@ Use when:
 Multiple models involved (User + Profile)
 Nested fields exist
 
-### Class Meta 
+## Filtering
+
+Filtering allows clients to retrieve only the data they need instead of fetching every record.
+
+### 1. Basic Filtering (`filterset_fields`)
+
+Use `filterset_fields` when you want to allow filtering by model fields using exact matching.
+
+```python
+from django_filters.rest_framework import DjangoFilterBackend
+
+class GuideProfileListView(generics.ListAPIView):
+    queryset = GuideProfile.objects.all()
+    serializer_class = GuideProfileSerializer
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["location", "experience_years"]
+```
+
+Example:
+
+```http
+GET /guides/?location=Pokhara
+GET /guides/?experience_years=5
+```
+
+---
+
+### 2. Custom Filtering (`FilterSet`)
+
+Use a custom `FilterSet` when you need more control over filtering.
+
+Create a `filters.py` file:
+
+```python
+import django_filters
+from .models import GuideProfile
+
+class GuideProfileFilter(django_filters.FilterSet):
+
+    location = django_filters.CharFilter(
+        field_name="location",
+        lookup_expr="icontains"
+    )
+
+    min_experience = django_filters.NumberFilter(
+        field_name="experience_years",
+        lookup_expr="gte"
+    )
+
+    max_experience = django_filters.NumberFilter(
+        field_name="experience_years",
+        lookup_expr="lte"
+    )
+
+    class Meta:
+        model = GuideProfile
+        fields = []
+```
+
+Use it in the view:
+
+```python
+filter_backends = [DjangoFilterBackend]
+filterset_class = GuideProfileFilter
+```
+
+Example:
+
+```http
+GET /guides/?location=pokhara
+GET /guides/?min_experience=5
+GET /guides/?max_experience=10
+GET /guides/?min_experience=5&max_experience=10
+```
+### `Meta.fields` in a FilterSet
+
+```python
+class Meta:
+    model = GuideProfile
+    fields = ["location", "experience_years"]
+```
+
+`fields` tells Django which model fields should automatically become filterable.
+
+If custom filters are defined manually, `fields` can be left empty:
+
+```python
+class Meta:
+    model = GuideProfile
+    fields = []
+```
+
+---
+
+### Filtering vs Business Rules (`get_queryset()`)
+
+`FilterSet` is used when **the client chooses how to filter the data**.
+
+Example:
+
+```http
+GET /guides/?location=Pokhara
+GET /guides/?min_experience=5
+```
+
+`get_queryset()` is used when **the backend enforces business rules**, regardless of what the client requests.
+
+Example:
+
+```python
+def get_queryset(self):
+    user = self.request.user
+
+    if user.is_authenticated and user.role == "hotel":
+        return Room.objects.filter(hotel=user.hotel_profile)
+
+    return Room.objects.filter(is_available=True)
+```
+
+Business rules:
+
+- Anonymous users → Only available rooms.
+- Travelers → Only available rooms.
+- Hotels → Only their own rooms.
+
+This ensures that users cannot bypass restrictions by manually calling the API with tools like Postman.
+
+# Google OAuth - Authentication Flow
+
+## What is Google OAuth?
+
+Google OAuth is an authentication method where our application **trusts Google to verify the user's identity** instead of asking the user for a password.
+
+The application never sees or stores the user's Google password.
+
+---
+
+## Overall Flow
+
+```text
+User
+ │
+ ▼
+Clicks "Continue with Google"
+ │
+ ▼
+Frontend redirects user to Google
+ │
+ ▼
+User selects/signs into Google account
+ │
+ ▼
+Google authenticates the user
+ │
+ ▼
+Google returns an ID Token
+ │
+ ▼
+Frontend sends ID Token to Django Backend
+ │
+ ▼
+Backend verifies the ID Token
+ │
+ ▼
+Find existing user or create a new user
+ │
+ ▼
+Backend generates JWT tokens
+ │
+ ▼
+Frontend stores JWT
+ │
+ ▼
+User is logged in
+```
+
+### Why Doesn't Google Ask for a Password Every Time?
+
+If the browser is already signed into Google, Google already knows the user's identity through its own session.
+
+Therefore, Google may simply ask the user to choose an account—or even sign them in automatically—without requesting the password again.
+
+If the browser is **not** signed into Google, Google asks for the user's Google password.
+
+The password is entered **only on Google's website**, never in our application.
+
+---
+
+### Why Does the Backend Trust The Token send by Frontend?
+
+The backend does **not** blindly trust the token sent by the frontend.
+
+It verifies:
+
+* the token was issued by Google
+* the token has not expired
+* the token was issued for **our Google Client ID**
+
+Only after successful verification does the backend trust the user's identity.
+
+---
+
+### What Happens After Google Authentication?
+
+After the backend verifies the user:
+
+* If the user already exists → log them in.
+* If the user does not exist → create a new account.
+
+The backend then generates its own JWT access and refresh tokens.
+
+From this point onward, the application uses **its own JWT authentication**.
+
+Google is only involved during the initial sign-in.
+
+---

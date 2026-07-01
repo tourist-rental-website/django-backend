@@ -9,6 +9,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListCreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import GuideProfileFilter
+from rest_framework.filters import SearchFilter
 
 class GuideProfileUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = GuideProfileSerializer
@@ -30,6 +31,15 @@ class GuideProfileListView(generics.ListAPIView):
     
     filter_backends = [DjangoFilterBackend]
     filterset_class = GuideProfileFilter
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+    ]
+    search_fields = [
+        "bio",
+        "location",
+    ]
 
 class HotelProfileUpadateView(generics.RetrieveUpdateAPIView):
     serializer_class = HotelProfileSerializer
@@ -53,31 +63,32 @@ class RoomListCreateView(generics.ListCreateAPIView):
     serializer_class = RoomSerializer
 
     def get_queryset(self):
-        queryset = Room.objects.all()
+        user = self.request.user
+
+        if user.is_authenticated and user.role == 'hotel':
+            queryset = Room.objects.filter(hotel = user.hotel_profile)   
+
+        else:
+            queryset = Room.objects.filter(is_available=True)
+
         hotel_id = self.request.query_params.get("hotel")
-        if hotel_id:
+        if hotel_id and not (user.is_authenticated and user.role == "hotel"):
             queryset = queryset.filter(hotel_id=hotel_id)
+        
         return queryset
 
-
     def get_permissions(self):
-
         if self.request.method == "POST":
             return [IsAuthenticated()]
-
         return [AllowAny()]
 
-
     def perform_create(self, serializer):
-
         if self.request.user.role != "hotel":
             raise ValidationError(
                 "Only hotel users can create rooms."
             )
-
         try:
             hotel_profile = self.request.user.hotel_profile
-
         except HotelProfile.DoesNotExist:
             raise ValidationError(
                 "You must create a hotel profile before creating a room."

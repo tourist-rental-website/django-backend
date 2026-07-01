@@ -201,3 +201,5 @@ DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 
 DJANGO_URL = "http://localhost:8000"
 FRONTEND_URL = "http://localhost:5173"
+
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID", default="")
