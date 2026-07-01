@@ -13,13 +13,25 @@ def create_user_profile(user):
     """
 
     if user.role == "traveler":
-        TravelerProfile.objects.get_or_create(user=user)
+        profile, _ = TravelerProfile.objects.get_or_create(user=user)
 
     elif user.role == "guide":
-        GuideProfile.objects.get_or_create(user=user)
+        profile, _ = GuideProfile.objects.get_or_create(user=user)
 
     elif user.role == "hotel":
-        HotelProfile.objects.get_or_create(user=user)
+        profile, _ = HotelProfile.objects.get_or_create(user=user)
+
+    else:
+        profile = None
+
+    return profile
+
+
+def getprofile(user):
+    """
+    Returns the user's profile by role, creating it if needed.
+    """
+    return create_user_profile(user)
 
 
 def send_verification_email(user):

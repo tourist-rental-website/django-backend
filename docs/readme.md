@@ -589,4 +589,93 @@ Business rules:
 - Hotels → Only their own rooms.
 
 This ensures that users cannot bypass restrictions by manually calling the API with tools like Postman.
-### Class Meta 
+
+# Google OAuth - Authentication Flow
+
+## What is Google OAuth?
+
+Google OAuth is an authentication method where our application **trusts Google to verify the user's identity** instead of asking the user for a password.
+
+The application never sees or stores the user's Google password.
+
+---
+
+## Overall Flow
+
+```text
+User
+ │
+ ▼
+Clicks "Continue with Google"
+ │
+ ▼
+Frontend redirects user to Google
+ │
+ ▼
+User selects/signs into Google account
+ │
+ ▼
+Google authenticates the user
+ │
+ ▼
+Google returns an ID Token
+ │
+ ▼
+Frontend sends ID Token to Django Backend
+ │
+ ▼
+Backend verifies the ID Token
+ │
+ ▼
+Find existing user or create a new user
+ │
+ ▼
+Backend generates JWT tokens
+ │
+ ▼
+Frontend stores JWT
+ │
+ ▼
+User is logged in
+```
+
+### Why Doesn't Google Ask for a Password Every Time?
+
+If the browser is already signed into Google, Google already knows the user's identity through its own session.
+
+Therefore, Google may simply ask the user to choose an account—or even sign them in automatically—without requesting the password again.
+
+If the browser is **not** signed into Google, Google asks for the user's Google password.
+
+The password is entered **only on Google's website**, never in our application.
+
+---
+
+### Why Does the Backend Trust The Token send by Frontend?
+
+The backend does **not** blindly trust the token sent by the frontend.
+
+It verifies:
+
+* the token was issued by Google
+* the token has not expired
+* the token was issued for **our Google Client ID**
+
+Only after successful verification does the backend trust the user's identity.
+
+---
+
+### What Happens After Google Authentication?
+
+After the backend verifies the user:
+
+* If the user already exists → log them in.
+* If the user does not exist → create a new account.
+
+The backend then generates its own JWT access and refresh tokens.
+
+From this point onward, the application uses **its own JWT authentication**.
+
+Google is only involved during the initial sign-in.
+
+---

@@ -16,7 +16,11 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import ValidationError
 from .services import create_user_profile, send_verification_email
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 
 
 class RegisterView(generics.CreateAPIView):
@@ -65,6 +69,74 @@ class VerifyEmailView(APIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class GoogleOAuthView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = GoogleAuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        id_token = serializer.validated_data.get("id_token")
+
+        if not settings.GOOGLE_CLIENT_ID:
+            return Response(
+                {"detail": "Google OAuth client ID is not configured."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        try:
+            id_info = google_id_token.verify_oauth2_token(
+                id_token,
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID,
+            )
+        except ValueError:
+            return Response(
+                {"detail": "Invalid Google ID token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = id_info.get("email")
+        email_verified = id_info.get("email_verified", False)
+
+        if not email or not email_verified:
+            return Response(
+                {"detail": "Google account email must be verified."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "first_name": id_info.get("given_name", ""),
+                "last_name": id_info.get("family_name", ""),
+                "is_verified": True,
+                "role": "traveler",
+            },
+        )
+
+        if created:
+            user.set_unusable_password()
+            user.save()
+
+        if not user.is_verified:
+            user.is_verified = True
+            user.save()
+
+        create_user_profile(user)
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class MeView(APIView): # APIView is a more flexible view that allows us to define custom behavior for different HTTP methods (GET, POST, PATCH, etc.)
